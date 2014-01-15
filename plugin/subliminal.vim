@@ -19,3 +19,6 @@ augroup MultiCursors
 	autocmd FileType * execute '2match Cursor /' . g:cursor . '\zs./'
 augroup END
 
+command! -range=% SubliminalInsert call subliminal#insert(0)
+command! -range=% SubliminalAppend call subliminal#insert(1)
+
