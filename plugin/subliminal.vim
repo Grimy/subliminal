@@ -12,8 +12,6 @@ augroup MultiCursors
 	autocmd BufWritePre * execute 'silent! keeppatterns %s/' . g:cursor . '//g'
 
 	" Conceal!
-	autocmd FileType * setlocal conceallevel=2
-	autocmd FileType * setlocal concealcursor=nvic
 	autocmd FileType * execute 'syntax match Cursor /' . g:cursor .
 				\ '/ conceal containedin=ALL'
 	autocmd FileType * execute '2match Cursor /' . g:cursor . '\zs./'
