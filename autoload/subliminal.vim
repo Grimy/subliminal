@@ -1,7 +1,7 @@
-" subliminal.vim
-" Last change: Tue 14 Jan 2014 05:27:47 AM CET
-" Author: Grimy <Victor.Adam@derpymail.org>
-" License: This file is released in the public domain
+" Copyright © 2014 Grimy <Victor.Adam@derpymail.org>
+" This work is free software. You can redistribute it and/or modify it under
+" the terms of the Do What The Fuck You Want To Public License, Version 2, as
+" published by Sam Hocevar. See the LICENCE file for more details.
 
 function! subliminal#insert(append) range
 	" In character-wise mode, fallback to the normal behaviour
