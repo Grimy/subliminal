@@ -22,7 +22,7 @@ endfunction
 
 function! CountCursors()
 	redir => result
-	execute 'silent! keeppatterns %s/' . g:cursor . '//gn'
+	execute 'silent! keeppatterns %s/' . g:cursor2 . '//gn'
 	redir END
 	return str2nr(result[1:])
 endfunction
@@ -52,23 +52,19 @@ function! subliminal#main()
 	"call repeat#set(chars, 1)
 endfunction
 
+let g:cursor2 = nr2char(str2nr(2039, 16), 1)
+
 function! subliminal#loop() abort
 	" No cursors, no chocolate
-	call setpos('.', [ bufnr('.'), 0, 0, 0 ])
-	if CountCursors() == 0
-		return
-	endif
 
 	let char = GetChar()
 	while char != "\<Esc>"
 		silent! undojoin
-		execute 'silent! keeppatterns %s/' . g:cursor . '\+/' . g:cursor . '/g'
+		execute 'silent! keeppatterns %s/' . g:cursor . '\+/' . g:cursor2 . '/g'
 		keepjumps normal gg
-		for i in range(CountCursors())
-			silent! undojoin
-			execute 'silent! keeppatterns normal! /' . g:cursor . "\<CR>x"
-			execute 'normal i' . char . g:cursor
-		endfor
+		while search(g:cursor2, 'W')
+			execute "normal! a\<BS>" . char . g:cursor
+		endwhile
 		let char = GetChar()
 	endwhile
 endfunction
