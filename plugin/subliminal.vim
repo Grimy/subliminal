@@ -17,8 +17,8 @@ augroup MultiCursors
 
 	" Conceal!
 	autocmd FileType * execute 'syntax match Cursor /' . g:cursor .
-				\ '/ conceal containedin=ALL'
-	autocmd FileType * execute '2match Cursor /' . g:cursor . '\zs./'
+				\ '\ze./ conceal containedin=ALL'
+	autocmd FileType * execute '2match Cursor /' . g:cursor . '.\?/'
 augroup END
 
 command! -range=% SubliminalInsert call subliminal#insert(0)

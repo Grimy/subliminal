@@ -59,10 +59,14 @@ function! subliminal#loop() abort
 
 	let char = GetChar()
 	while char != "\<Esc>"
+		if strlen(maparg(char, 'i'))
+			execute 'let char = "' . substitute(maparg(char, 'i'), '<', '\\<', 'g') . '"'
+		endif
+
 		silent! undojoin
 		execute 'silent! keeppatterns %s/' . g:cursor . '\+/' . g:cursor2 . '/g'
-		keepjumps normal gg
-		while search(g:cursor2, 'W')
+
+		while search(g:cursor2, 'w')
 			execute "normal! a\<BS>" . char . g:cursor
 		endwhile
 		let char = GetChar()
