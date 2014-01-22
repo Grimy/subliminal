@@ -6,25 +6,11 @@
 function! subliminal#insert(append) range
 	" In character-wise mode, fallback to the normal behaviour
 	if visualmode() ==# 'v'
-		call setpos('.', getpos(a:append ? "'>" : "'<"))
-		startinsert
-		return
+		return feedkeys(a:append ? 'gvA' : 'gvI', 'n')
 	endif
 
-	let col = sort([virtcol("'>"), virtcol("'<")])[a:append]
-	execute 'silent! keeppatterns *s/\%' . col . 'v/' . g:cursor . '/'
+	execute "normal! gv" (a:append ? 'A' : 'I') . g:cursor
 	call subliminal#main()
-endfunction
-
-function! NormalPos(pos)
-	return line(a:pos) . 'G' . virtcol(a:pos) . '|'
-endfunction
-
-function! CountCursors()
-	redir => result
-	execute 'silent! keeppatterns %s/' . g:cursor2 . '//gn'
-	redir END
-	return str2nr(result[1:])
 endfunction
 
 " Wrapper around getchar() that keeps a cache of the typeahead, in case the
@@ -41,26 +27,15 @@ endfunction
 let s:chars = [ ]
 
 function! subliminal#main()
-	" Save options so we can restore them later
-	let save = [ &eventignore, &cursorline, &cursorcolumn ]
-	set eventignore=all nocursorline nocursorcolumn
-
-	call subliminal#loop()
-
-	execute 'silent! keeppatterns %s/' . g:cursor . '//g'
-	let [ &eventignore, &cursorline, &cursorcolumn ] = save
-	"call repeat#set(chars, 1)
-endfunction
-
-let g:cursor2 = nr2char(str2nr(2039, 16), 1)
-
-function! subliminal#loop() abort
 	" No cursors, no chocolate
+	" Save options so we can restore them later
+	let save = [ &eventignore, &cursorline, &cursorcolumn, &scrolloff ]
+	set eventignore=all nocursorline nocursorcolumn scrolloff=0
 
 	let char = GetChar()
 	while char != "\<Esc>"
 		if strlen(maparg(char, 'i'))
-			execute 'let char = "' . substitute(maparg(char, 'i'), '<', '\\<', 'g') . '"'
+			execute 'let char = "' . escape(maparg(char, 'i'), '<') . '"'
 		endif
 
 		silent! undojoin
@@ -71,5 +46,9 @@ function! subliminal#loop() abort
 		endwhile
 		let char = GetChar()
 	endwhile
+
+	execute 'silent! keeppatterns %s/' . g:cursor . '//g'
+	let [ &eventignore, &cursorline, &cursorcolumn, &scrolloff ] = save
+	"call repeat#set(chars, 1)
 endfunction
 

@@ -3,7 +3,8 @@
 " the terms of the Do What The Fuck You Want To Public License, Version 2, as
 " published by Sam Hocevar. See the LICENCE file for more details.
 
-let g:cursor = nr2char(str2nr(2038, 16), 1)
+let g:cursor  = nr2char(str2nr(2038, 16), 1)
+let g:cursor2 = nr2char(str2nr(2039, 16), 1)
 
 nnoremap <expr> <C-N> 'geea' . g:cursor . "\<Esc>b*"
 nnoremap <expr> <C-_>    'i' . g:cursor . "\<Esc>l"
@@ -13,12 +14,14 @@ nnoremap <silent> <C-Z> :call subliminal#main()<CR>
 
 augroup MultiCursors
 	autocmd!
+	" Remove cursors before writing
 	autocmd BufWritePre * execute 'silent! keeppatterns %s/' . g:cursor . '//g'
 
 	" Conceal!
 	autocmd FileType * execute 'syntax match Cursor /' . g:cursor .
 				\ '\ze./ conceal containedin=ALL'
-	autocmd FileType * execute '2match Cursor /' . g:cursor . '.\?/'
+	autocmd FileType * execute 'syntax match Cursor /' . g:cursor .
+				\ '.\?/ containedin=ALL'
 augroup END
 
 command! -range=% SubliminalInsert call subliminal#insert(0)
