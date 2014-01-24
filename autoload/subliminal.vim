@@ -26,24 +26,25 @@ function! GetChar()
 endfunction
 let s:chars = [ ]
 
+nnoremap <Plug>(subliminal_abs) a<BS>
+
 function! subliminal#main()
-	" No cursors, no chocolate
 	" Save options so we can restore them later
 	let save = [ &eventignore, &cursorline, &cursorcolumn, &scrolloff ]
 	set eventignore=all nocursorline nocursorcolumn scrolloff=0
 
 	let char = GetChar()
 	while char != "\<Esc>"
-		if strlen(maparg(char, 'i'))
-			execute 'let char = "' . escape(maparg(char, 'i'), '<') . '"'
-		endif
-
 		silent! undojoin
 		execute 'silent! keeppatterns %s/' . g:cursor . '\+/' . g:cursor2 . '/g'
 
+		let cursors = 0
 		while search(g:cursor2, 'w')
-			execute "normal! a\<BS>" . char . g:cursor
+			let cursors = cursors + 1
+			execute "normal \<Plug>(subliminal_abs)" . char
+			execute 'normal! a' . g:cursor
 		endwhile
+		echo 'Subliminal:' cursors 'cursors'
 		let char = GetChar()
 	endwhile
 
