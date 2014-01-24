@@ -16,7 +16,7 @@ endfunction
 " Wrapper around getchar() that keeps a cache of the typeahead, in case the
 " user types faster than what we can process.
 " It also converts characters to their string representation
-function! GetChar()
+function! s:get_char()
 	redraw
 	while getchar(1) || len(s:chars) == 0
 		let c = getchar()
@@ -33,7 +33,7 @@ function! subliminal#main()
 	let save = [ &eventignore, &cursorline, &cursorcolumn, &scrolloff ]
 	set eventignore=all nocursorline nocursorcolumn scrolloff=0
 
-	let char = GetChar()
+	let char = ''
 	while char != "\<Esc>"
 		silent! undojoin
 		execute 'silent! keeppatterns %s/' . g:cursor . '\+/' . g:cursor2 . '/g'
@@ -41,11 +41,10 @@ function! subliminal#main()
 		let cursors = 0
 		while search(g:cursor2, 'w')
 			let cursors = cursors + 1
-			execute "normal \<Plug>(subliminal_abs)" . char
-			execute 'normal! a' . g:cursor
+			execute "normal \<Plug>(subliminal_abs)" . char . g:cursor
 		endwhile
 		echo 'Subliminal:' cursors 'cursors'
-		let char = GetChar()
+		let char = s:get_char()
 	endwhile
 
 	execute 'silent! keeppatterns %s/' . g:cursor . '//g'
