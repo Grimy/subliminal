@@ -3,52 +3,48 @@
 " the terms of the Do What The Fuck You Want To Public License, Version 2, as
 " published by Sam Hocevar. See the LICENCE file for more details.
 
-function! subliminal#insert(append) range
-	" In character-wise mode, fallback to the normal behaviour
-	if visualmode() ==# 'v'
-		return feedkeys(a:append ? 'gvA' : 'gvI', 'n')
-	endif
+" TODO: repeat#set(...) ?
 
-	execute "normal! gv" (a:append ? 'A' : 'I') . g:cursor
+function! subliminal#insert(regex) range
+	let [save, &selection] = [&selection, 'inclusive']
+	execute 'silent! keeppatterns keepjumps %s/' . a:regex . '\zs/' . g:cursor
+	let &selection = save
 	call subliminal#main()
 endfunction
 
-" Wrapper around getchar() that keeps a cache of the typeahead, in case the
-" user types faster than what we can process.
-" It also converts characters to their string representation
-function! s:get_char()
-	redraw
-	while getchar(1) || len(s:chars) == 0
-		let c = getchar()
-		call add(s:chars, type(c) == 0 ? nr2char(c) : c)
-	endwhile
-	return remove(s:chars, 0)
+" Saves and restores the environment
+function! subliminal#main()
+	if !search(g:cursor, 'w')
+		startinsert
+		return
+	endif
+	let save = [&eventignore, &cursorline, &cursorcolumn, &scrolloff]
+	try
+		set eventignore=all nocursorline nocursorcolumn scrolloff=0
+		call s:input_loop()
+	catch | finally
+		echo
+		let [&eventignore, &cursorline, &cursorcolumn, &scrolloff] = save
+	endtry
 endfunction
-let s:chars = [ ]
 
 nnoremap <Plug>(subliminal_abs) a<BS>
+inoremap <silent> <Plug>(subliminal_ok) <C-O>:let s:cursors += 1<CR><C-V>u2038
+nnoremap <silent> <Plug>(subliminal_ok) <Nop>
 
-function! subliminal#main()
-	" Save options so we can restore them later
-	let save = [ &eventignore, &cursorline, &cursorcolumn, &scrolloff ]
-	set eventignore=all nocursorline nocursorcolumn scrolloff=0
-
-	let char = ''
-	while char != "\<Esc>"
+function! s:input_loop()
+	let s:cursors = 9001  " dummy value to force
+	while s:cursors
+		redraw
+		let char = getchar()
+		let char = type(char) == 0 ? nr2char(char) : char
 		silent! undojoin
-		execute 'silent! keeppatterns %s/' . g:cursor . '\+/' . g:cursor2 . '/g'
-
-		let cursors = 0
-		while search(g:cursor2, 'w')
-			let cursors = cursors + 1
-			execute "normal \<Plug>(subliminal_abs)" . char . g:cursor
+		execute 'silent! keeppatterns keepjumps %s/\v' . g:cursor . "+/\u2039"
+		let s:cursors = 0
+		while search("\u2039", 'w')
+			exec "normal \<Plug>(subliminal_abs)" . char . "\<Plug>(subliminal_ok)"
 		endwhile
-		echo 'Subliminal:' cursors 'cursors'
-		let char = s:get_char()
+		echo 'Subliminal:' s:cursors 'cursors'
 	endwhile
-
-	execute 'silent! keeppatterns %s/' . g:cursor . '//g'
-	let [ &eventignore, &cursorline, &cursorcolumn, &scrolloff ] = save
-	"call repeat#set(chars, 1)
+	silent! normal! `.
 endfunction
-

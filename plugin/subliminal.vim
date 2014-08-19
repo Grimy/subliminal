@@ -3,27 +3,28 @@
 " the terms of the Do What The Fuck You Want To Public License, Version 2, as
 " published by Sam Hocevar. See the LICENCE file for more details.
 
-let g:cursor  = nr2char(str2nr(2038, 16), 1)
-let g:cursor2 = nr2char(str2nr(2039, 16), 1)
+let g:cursor = "\u2038"
 
-nnoremap <expr> <C-N> 'geea' . g:cursor . "\<Esc>b*"
-nnoremap <expr> <C-_>    'i' . g:cursor . "\<Esc>l"
-inoremap <expr> <C-_> g:cursor
-cnoremap <expr> <C-_> g:cursor
-nnoremap <silent> <C-Z> :call subliminal#main()<CR>
+command! -range=% SubliminalStart  call subliminal#main()
+command! -range=% SubliminalInsert call subliminal#insert('\v(%V@!.|^)%V')
+command! -range=% SubliminalAppend call subliminal#insert('\v%V.(%V@!|$)')
 
-augroup MultiCursors
+nnoremap <C-_> i<C-V>u2038<Esc>
+inoremap <C-_>  <C-V>u2038
+cnoremap <C-_>  <C-V>u2038
+nnoremap <C-LeftMouse> <LeftMouse>i<C-V>u2038<Esc>
+
+nnoremap <silent> i :SubliminalStart<CR>
+xnoremap <silent> I    :SubliminalInsert<CR>
+xnoremap <silent> A    :SubliminalAppend<CR>
+xnoremap <silent> c xgv:SubliminalInsert<CR>
+
+augroup Subliminal
 	autocmd!
-	" Remove cursors before writing
-	autocmd BufWritePre * execute 'silent! keeppatterns %s/' . g:cursor . '//g'
+	" Remove cursors before saving
+	autocmd BufWritePre * execute 'silent! keeppatterns %s/\u2038//g'
 
-	" Conceal!
-	autocmd FileType * execute 'syntax match Cursor /' . g:cursor .
-				\ '\ze./ conceal containedin=ALL'
-	autocmd FileType * execute 'syntax match Cursor /' . g:cursor .
-				\ '.\?/ containedin=ALL'
+	" Conceal, don’t feel~
+	autocmd FileType * execute 'syntax match Cursor /' . g:cursor . '\ze./ conceal containedin=ALL'
+	autocmd FileType * execute 'syntax match Cursor /' . g:cursor . '.\?/ containedin=ALL'
 augroup END
-
-command! -range=% SubliminalInsert call subliminal#insert(0)
-command! -range=% SubliminalAppend call subliminal#insert(1)
-
