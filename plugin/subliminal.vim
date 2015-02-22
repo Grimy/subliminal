@@ -22,7 +22,7 @@ xnoremap <silent> c xgv:SubliminalInsert<CR>
 augroup Subliminal
 	autocmd!
 	" Remove cursors before saving
-	autocmd BufWritePre * execute 'silent! keeppatterns %s/\u2038//g'
+	autocmd BufWritePre * execute "silent! keeppatterns %s/\u2038//g"
 
 	" Conceal, don’t feel~
 	autocmd FileType * execute 'syntax match SubliminalCursor /' . g:cursor . '\ze./ conceal containedin=ALL'
