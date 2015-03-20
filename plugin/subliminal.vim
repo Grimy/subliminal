@@ -25,6 +25,7 @@ augroup Subliminal
 	autocmd BufWritePre * execute 'silent! keeppatterns %s/\u2038//g'
 
 	" Conceal, don’t feel~
-	autocmd FileType * execute 'syntax match Cursor /' . g:cursor . '\ze./ conceal containedin=ALL'
-	autocmd FileType * execute 'syntax match Cursor /' . g:cursor . '.\?/ containedin=ALL'
+	autocmd FileType * execute 'syntax match SubliminalCursor /' . g:cursor . '\ze./ conceal containedin=ALL'
+	autocmd FileType * execute 'syntax match SubliminalCursor /' . g:cursor . '.\?/ containedin=ALL'
+	highlight! SubliminalCursor cterm=NONE,reverse
 augroup END
