@@ -3,8 +3,6 @@
 " the terms of the Do What The Fuck You Want To Public License, Version 2, as
 " published by Sam Hocevar. See the LICENCE file for more details.
 
-let g:cursor = "\u2038"
-
 command! -range=% SubliminalStart  call subliminal#main()
 command! -range=% SubliminalInsert call subliminal#insert('\v(%V@!.|^)%V')
 command! -range=% SubliminalAppend call subliminal#insert('\v%V.(%V@!|$)')
@@ -25,7 +23,7 @@ augroup Subliminal
 	autocmd BufWritePre * execute "silent! keeppatterns %s/\u2038//g"
 
 	" Conceal, don’t feel~
-	autocmd FileType * execute 'syntax match SubliminalCursor /' . g:cursor . '\ze./ conceal containedin=ALL'
-	autocmd FileType * execute 'syntax match SubliminalCursor /' . g:cursor . '.\?/ containedin=ALL'
+	autocmd FileType * execute "syntax match SubliminalCursor /\u2038\\ze./ conceal containedin=ALL"
+	autocmd FileType * execute "syntax match SubliminalCursor /\u2038.\\?/ containedin=ALL"
 	highlight! SubliminalCursor cterm=NONE,reverse
 augroup END
